@@ -11,11 +11,13 @@
 1. Windows 上的 MuMu 12。ADB 默认 `127.0.0.1:16384`（多开时每个实例端口不同，以模拟器实例设置为准，本项目按 16384 写说明）。
 2. 模拟器分辨率锁定 **1280×720**，DPI **240**。短边是 720。国服 MuMu（`com.lilithgame.pgame.android.cn`）已接受竖屏 **720×1280**（短边 720）作为裁图分辨率，不要求横屏游戏画面。
 3. `assets/interface.json` 里 Adb 控制器的 `display_short_side` 已是 **720**。裁图必须来自 MaaDebugger（或同一缩放）里的截图，也就是短边已经变成 720 之后的画面。不要拿模拟器相册原图再自己缩放。
-4. PNG，无损。裁**控件本身**再留一圈窄背景，不要裁全屏。点击类节点会点中匹配到的矩形，所以领取、返回、关闭必须裁按钮，不要裁整页。
-5. 维护弹窗例外：`maintenance.png` 裁弹窗主体，节点动作是停止任务，不会去点它。
-6. 一张逻辑用一个文件。红点导致邮件图标对不上时，再追加 `phase1/mail/entry_dot.png`，并把 `MailEntry.template` 改成数组。七日如果是七个格子，`sevenday_claim.png` 只裁「可领取」那一格。
-7. 未写 `threshold` 的模板匹配用框架默认 0.7。通用关闭叉写了 0.85。误识别再调高，漏识别再调低。
-8. 路径相对于 `assets/resource/image/`。流水线里的 `template` 不要带 `image/` 前缀。
+4. **MuMu 必须用 AdbShell 点击。** 默认的 Maatouch / minitouch / EmulatorExtras 会报点击成功，但触摸坐标和短边 720 的画面对不上，邮件入口点了邮箱也不开。`adb shell input tap` 才和这张 720×1280 截图一致。官方 Project Interface v2 **没有** Adb 的 input 字段（写明自动检测），不要自己编 `adb.input: "AdbShell"` 这种字符串。打包用的通用 UI（MFAAvalonia）会读 `controller.adb.input` 的**整数**位掩码：`1` = AdbShell，`2` = MinitouchAndAdbKey，`4` = Maatouch，`8` = EmulatorExtras。本仓库已经写成 `1`。MaaDebugger 的 Connect **不读**这个字段，仍用 AdbController 默认输入；用 Python 连模拟器时调用 `agent/mumu_adb.py` 的 `connect_adb`，它只传 `MaaAdbInputMethodEnum.AdbShell`。
+5. PNG，无损。裁**控件本身**再留一圈窄背景，不要裁全屏。点击类节点会点中匹配到的矩形，所以领取、返回、关闭必须裁按钮，不要裁整页。
+6. 维护弹窗例外：`maintenance.png` 裁弹窗主体，节点动作是停止任务，不会去点它。
+7. 一张逻辑用一个文件。红点导致邮件图标对不上时，再追加 `phase1/mail/entry_dot.png`，并把 `MailEntry.template` 改成数组。七日如果是七个格子，`sevenday_claim.png` 只裁「可领取」那一格。
+8. 未写 `threshold` 的模板匹配用框架默认 0.7。通用关闭叉写了 0.85。误识别再调高，漏识别再调低。结果默认按 `Horizontal` 取最左边，不是最高分，所以中部的中等分数也会抢走底部的真按钮。
+9. 路径相对于 `assets/resource/image/`。流水线里的 `template` 不要带 `image/` 前缀。
+10. `roi` 是 `[x, y, w, h]`，坐标在短边 720 缩放后的截图上。竖屏就是 **720×1280**。`[0, 0, 0, 0]` 才是全屏。模板匹配只在这块矩形里做，模板必须比矩形小，命中框也必须整块落在矩形里。
 
 OCR 模型还要另外下，见 [how_to_develop.md](develop/how_to_develop.md) 第 2 步，解压到 `assets/resource/model/ocr/`。没有 `det.onnx` / `rec.onnx` / `keys.txt` 时，带 OCR 的节点不可用。模型不要提交。
 
@@ -25,11 +27,11 @@ OCR 模型还要另外下，见 [how_to_develop.md](develop/how_to_develop.md) �
 | --- | --- | --- |
 | `phase1/home/anchor.png` | `HomeGate`、`HomeAnchorProbe` | 主界面固定锚点。避开角色动画、红点和会滚动的公告。建议角落上的固定 UI |
 | `phase1/friends/entry.png` | `FriendsEntry` | 已裁。主界面右侧「好友」入口，约 105×100，含红色通知点。无红点对不上时再追加第二张，不要覆盖原图 |
-| `phase1/friends/back.png` | `FriendsBack` | 已裁。好友页（找朋友）底部居中白色关闭 X，100×100 RGBA。点它回到主界面 |
+| `phase1/friends/back.png` | `FriendsBack` | 已裁。好友页（找朋友）底部居中白色关闭 X，100×100 RGBA。`roi` 为 `[250, 1120, 220, 160]`，只认这块底部。不限区域时中部有过 0.7 的误匹配。点它回到主界面 |
 | `phase1/mail/entry.png` | `MailEntry` | 好友页右上角信封（设置齿轮右侧）。不是主界面图标 |
 | `phase1/mail/claim.png` | `MailClaim` | 邮箱里的一键领取或单封领取按钮 |
 | `phase1/mail/empty.png` | `MailEmpty` | 空邮箱空态（插画或固定空文案区域）。节点只识别，不点击 |
-| `phase1/mail/back.png` | `MailBack` | 邮箱页底部关闭。只回到好友页，不是回主界面 |
+| `phase1/mail/back.png` | `MailBack` | 已裁。邮箱页底部关闭。`roi` 为 `[250, 1100, 220, 180]`。这张白 X 在好友页底部也会打到 1.0，不限区域会点到好友页的关闭。只回到好友页，不是回主界面 |
 | `phase1/award/signin_entry.png` | `SignInEntry` | 签到入口。不在主界面就在入口和 `SignInBoard` 之间加中间节点 |
 | `phase1/award/signin_claim.png` | `SignInClaim` | 签到面板上的签到/领取按钮 |
 | `phase1/award/signin_back.png` | `SignInBack` | 离开签到面板 |
@@ -55,9 +57,18 @@ OCR 模型还要另外下，见 [how_to_develop.md](develop/how_to_develop.md) �
 
 主界面 → 好友 → 邮件。竖屏裁图仍是 **720×1280**（短边 720）。
 
-`HomeGate` 先点 `FriendsEntry`（`phase1/friends/entry.png` 已在仓库里），好友页打开后 `MailEntry` 用已经裁好的 `phase1/mail/entry.png`（右上角信封）。邮箱里的领取、空态、弹窗和 `MailBack` 不变。`MailBack` 接到 `FriendsBack`，再接到 `Phase1Dispatch`。签到、七日、活动领奖、弹珠焚决仍排在同一轮 `HomeGate` 后面。`FriendsEntry` 的 `max_hit` 是 1，回到主界面后不会再次点进好友。
+`HomeGate` 先点 `FriendsEntry`（`phase1/friends/entry.png` 已在仓库里），好友页打开后 `MailEntry` 用已经裁好的 `phase1/mail/entry.png`（右上角信封）。邮箱里的领取、空态和弹窗节点不变。`MailBack` 仍接到 `FriendsBack`，再接到 `Phase1Dispatch`。签到、七日、活动领奖、弹珠焚决仍排在同一轮 `HomeGate` 后面。`FriendsEntry` 的 `max_hit` 是 1，回到主界面后不会再次点进好友。
 
 `phase1/mail/back.png` 只关掉邮箱，回到好友页。`FriendsBack`（TemplateMatch + Click）使用已裁的 `phase1/friends/back.png`（好友页底部居中白色关闭 X，100×100），插在 `MailBack` 和 `Phase1Dispatch` 之间，关掉好友层回到主界面。认不到这张关闭图时，`HomeGate` 认不到主界面锚点，`Phase1Dispatch` 大约 20 秒超时结束，不会死循环。
+
+两个返回都限制在底部，坐标系是缩放后的 720×1280：
+
+| 节点 | roi `[x, y, w, h]` | 为什么 |
+| --- | --- | --- |
+| `MailBack` | `[250, 1100, 220, 180]` | 模板 110×85。好友页上同一张图在底部白 X 打到 1.0，框是 `[305, 1185, 110, 85]`，整块落在这个 roi 里。不限区域时会把好友页的关闭当成邮箱关闭 |
+| `FriendsBack` | `[250, 1120, 220, 160]` | 模板 100×100。限制在底部后探针命中 `[310, 1140, 100, 100]`。不限区域时中部有不少过了默认 0.7 的误匹配，又按从左到右取结果 |
+
+`claim.png`、`empty.png`，以及 `maintenance.png` / `update_later.png` / `network_confirm.png` 仍然没有，不要补假图。邮箱非空、空态没出现、维护/更新/网络弹窗没出现，这几张就继续缺着。
 
 ## 要在真机上核对的 OCR
 

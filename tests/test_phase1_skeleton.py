@@ -55,6 +55,18 @@ def _refs(value):
             yield from _refs(item)
 
 
+def _roi_holds(roi, box, screen) -> bool:
+    """ROI is [x, y, w, h] on the scaled screenshot. The template box must fit inside it."""
+    x, y, w, h = roi
+    bx, by, bw, bh = box
+    sw, sh = screen
+    if not (0 <= x and 0 <= y and x + w <= sw and y + h <= sh):
+        return False
+    if bw > w or bh > h:
+        return False
+    return bx >= x and by >= y and bx + bw <= x + w and by + bh <= y + h
+
+
 def _templates(node: dict) -> list[str]:
     found = []
 
@@ -132,6 +144,9 @@ class Phase1LayoutTests(unittest.TestCase):
         self.assertIn("https://github.com/gityangchen/MaaTTA", text)
         self.assertIn('"display_short_side": 720', text)
         self.assertIn('"../agent/main.py"', text)
+        # MFAAvalonia reads controller.adb.input as the API bitmask. 1 is AdbShell.
+        self.assertIn('"input": 1', text)
+        self.assertNotIn('"display_short_side": 1280', text)
         self.assertNotIn("MyTask", text)
         self.assertNotIn("MaaXXX", text)
         entries = re.findall(r'"entry"\s*:\s*"([^"]+)"', text)
@@ -278,6 +293,15 @@ class Phase1LayoutTests(unittest.TestCase):
         self.assertEqual(friends_back["template"], "phase1/friends/back.png")
         self.assertEqual(friends_back["next"], ["Phase1Dispatch"])
 
+        # 720×1280. Probe hits must sit fully inside the bottom ROI, and the
+        # template must be smaller than that crop (Maa matches on image(roi)).
+        mail_roi = nodes["MailBack"]["roi"]
+        friends_roi = nodes["FriendsBack"]["roi"]
+        self.assertEqual(mail_roi, [250, 1100, 220, 180])
+        self.assertEqual(friends_roi, [250, 1120, 220, 160])
+        self.assertTrue(_roi_holds(mail_roi, (305, 1185, 110, 85), (720, 1280)))
+        self.assertTrue(_roi_holds(friends_roi, (310, 1140, 100, 100), (720, 1280)))
+
         templates = []
         for node in nodes.values():
             templates.extend(_templates(node))
@@ -309,6 +333,24 @@ class Phase1LayoutTests(unittest.TestCase):
         self.assertIn("phase1/friends/back.png", checklist)
         self.assertIn("`FriendsBack`", checklist)
         self.assertNotIn("不要造 `phase1/friends/back.png`", checklist)
+        self.assertIn("AdbShell", checklist)
+        self.assertIn("[250, 1100, 220, 180]", checklist)
+        self.assertIn("[250, 1120, 220, 160]", checklist)
+        self.assertIn("claim.png", checklist)
+        self.assertIn("empty.png", checklist)
+        self.assertIn("maintenance.png", checklist)
+        self.assertIn("update_later.png", checklist)
+        self.assertIn("network_confirm.png", checklist)
+
+    def test_mumu_helper_forces_adb_shell_without_importing_maa(self):
+        import mumu_adb
+
+        self.assertEqual(mumu_adb.ADB_SHELL_INPUT, 1)
+        source = (AGENT / "mumu_adb.py").read_text(encoding="utf-8")
+        self.assertNotIn("import maa", source.split("def adb_shell_input_methods")[0])
+        self.assertIn("input_methods", source)
+        self.assertIn("MaaAdbInputMethodEnum.AdbShell", source)
+        self.assertIn("input tap", source)
 
     def test_packaged_agent_path_rewrite(self):
         install = _load_install()

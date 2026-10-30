@@ -119,8 +119,9 @@
         ]
     },
     "MailBack": {
-        "desc": "image/phase1/mail/back.png：邮箱页底部关闭，只回到好友页。接下来交给 FriendsBack 关掉好友层，再回 Phase1Dispatch，好让同一轮领奖继续。",
+        "desc": "image/phase1/mail/back.png：邮箱页底部关闭，只回到好友页。ROI [250,1100,220,180] 是 720×1280 画面的底部中间。这张白 X 在好友页底部也会打到 1.0（探针框 [305,1185,110,85]），不限区域就会点错关闭。接下来交给 FriendsBack 关掉好友层，再回 Phase1Dispatch。",
         "recognition": "TemplateMatch",
+        "roi": [250, 1100, 220, 180],
         "template": "phase1/mail/back.png",
         "action": "Click",
         "post_delay": 400,
@@ -129,8 +130,9 @@
         ]
     },
     "FriendsBack": {
-        "desc": "image/phase1/friends/back.png：好友页（找朋友）底部居中白色关闭 X，100×100 RGBA。点它关掉好友层，回到主界面。",
+        "desc": "image/phase1/friends/back.png：好友页（找朋友）底部居中白色关闭 X，100×100。ROI [250,1120,220,160] 只在底部找它。不限区域时中部有不少过了 0.7 的误匹配，默认按 Horizontal 取最左边，会点偏。约束后探针命中 [310,1140,100,100]。点它关掉好友层，回到主界面。",
         "recognition": "TemplateMatch",
+        "roi": [250, 1120, 220, 160],
         "template": "phase1/friends/back.png",
         "action": "Click",
         "post_delay": 400,
