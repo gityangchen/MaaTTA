@@ -187,6 +187,7 @@ class Phase1LayoutTests(unittest.TestCase):
         self.assertEqual(
             pngs,
             [
+                "friends/entry.png",
                 "home/anchor.png",
                 "mail/back.png",
                 "mail/entry.png",

@@ -41,3 +41,6 @@
 
 ## git
 working tree 仅有未跟踪：phase1/home/、mail/、popup/ 下新 PNG。
+
+## 追加
+- `phase1/friends/entry.png` 已加入（主界面右侧好友入口）。裁图约 105×100，含红色通知点，红点可能变化，按原图保留。邮件路径需要 主界面 → 好友 → 邮件；`mail/entry` 在好友页，不在主界面。
