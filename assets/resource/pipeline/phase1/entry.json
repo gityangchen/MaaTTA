@@ -13,7 +13,7 @@
         ]
     },
     "Phase1Dispatch": {
-        "desc": "先处理挡路弹窗（处理完跳回这里），再认主界面锚点。锚点图还没放进来时，本节点大约 20 秒后超时，这是预期结果。",
+        "desc": "先处理挡路弹窗（处理完跳回这里），再认主界面锚点，由 HomeGate 按好友邮件、签到、七日、活动领奖、弹珠焚决继续。不在主界面（例如邮箱关掉后仍停在好友页）时，本节点大约 20 秒后超时结束，这是预期结果，不会死循环。",
         "recognition": "DirectHit",
         "action": "DoNothing",
         "rate_limit": 500,
@@ -39,7 +39,7 @@
         ]
     },
     "HomeGate": {
-        "desc": "TODO 裁 image/phase1/home/anchor.png。命中主界面后按顺序尝试邮件、签到、七日、活动领奖、弹珠焚决。某个入口这轮不在屏幕上就试下一个。全部试完或都认不到时，本节点超时结束。",
+        "desc": "TODO 裁 image/phase1/home/anchor.png。命中主界面后按顺序尝试好友（邮件在好友页，不在主界面）、签到、七日、活动领奖、弹珠焚决。某个入口这轮不在屏幕上就试下一个。全部试完或都认不到时，本节点超时结束。",
         "recognition": "TemplateMatch",
         "template": "phase1/home/anchor.png",
         "action": "DoNothing",
@@ -47,7 +47,7 @@
         "rate_limit": 500,
         "timeout": 20000,
         "next": [
-            "MailEntry",
+            "FriendsEntry",
             "SignInEntry",
             "SevenDayEntry",
             "ActivityAwardEntry",
