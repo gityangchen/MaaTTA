@@ -58,7 +58,7 @@
                 "phase1"
             ],
             "default_check": true,
-            "description": "CDK base 门闩后，从主界面依次尝试邮件、签到、七日、活动领奖、弹珠焚决。模板未裁齐时会在对应节点超时。",
+            "description": "CDK base 门闩后，从主界面依次尝试好友（邮件在好友页）、签到、七日、活动领奖、弹珠焚决。模板未裁齐时会在对应节点超时。",
             "controller": [
                 "MuMu 12"
             ]

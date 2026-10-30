@@ -1,6 +1,6 @@
 # 一期模板裁图清单
 
-给安卓专家。流水线骨架已经接上，下面这些 PNG **都还没有**。缺图时对应节点匹配失败，任务会在主界面锚点或子界面超时，这是预期，不是脚本写坏了。
+给安卓专家。流水线骨架已经接上。表里多数 PNG 还没有；已经裁进仓库的不要用假图覆盖。缺图时对应节点匹配失败，任务会在主界面锚点或子界面超时，这是预期，不是脚本写坏了。
 
 不要交纯色、空白或手画的假图。文件放进仓库后再跑调试任务。
 
@@ -24,10 +24,11 @@ OCR 模型还要另外下，见 [how_to_develop.md](develop/how_to_develop.md) �
 | 文件 | 节点 | 裁什么 |
 | --- | --- | --- |
 | `phase1/home/anchor.png` | `HomeGate`、`HomeAnchorProbe` | 主界面固定锚点。避开角色动画、红点和会滚动的公告。建议角落上的固定 UI |
-| `phase1/mail/entry.png` | `MailEntry` | 主界面邮件入口图标 |
+| `phase1/friends/entry.png` | `FriendsEntry` | 已裁。主界面右侧「好友」入口，约 105×100，含红色通知点。无红点对不上时再追加第二张，不要覆盖原图 |
+| `phase1/mail/entry.png` | `MailEntry` | 好友页右上角信封（设置齿轮右侧）。不是主界面图标 |
 | `phase1/mail/claim.png` | `MailClaim` | 邮箱里的一键领取或单封领取按钮 |
 | `phase1/mail/empty.png` | `MailEmpty` | 空邮箱空态（插画或固定空文案区域）。节点只识别，不点击 |
-| `phase1/mail/back.png` | `MailBack` | 关闭邮箱或返回主界面的按钮 |
+| `phase1/mail/back.png` | `MailBack` | 邮箱页底部关闭。只回到好友页，不是回主界面 |
 | `phase1/award/signin_entry.png` | `SignInEntry` | 签到入口。不在主界面就在入口和 `SignInBoard` 之间加中间节点 |
 | `phase1/award/signin_claim.png` | `SignInClaim` | 签到面板上的签到/领取按钮 |
 | `phase1/award/signin_back.png` | `SignInBack` | 离开签到面板 |
@@ -48,6 +49,14 @@ OCR 模型还要另外下，见 [how_to_develop.md](develop/how_to_develop.md) �
 可选、当前 JSON 还没引用：
 
 - `phase1/mail/entry_dot.png`：邮件图标带红点的另一张。需要时把 `MailEntry` 的 `template` 改成 `["phase1/mail/entry.png", "phase1/mail/entry_dot.png"]`。
+
+## 邮件路径
+
+主界面 → 好友 → 邮件。竖屏裁图仍是 **720×1280**（短边 720）。
+
+`HomeGate` 先点 `FriendsEntry`（`phase1/friends/entry.png` 已在仓库里），好友页打开后 `MailEntry` 用已经裁好的 `phase1/mail/entry.png`（右上角信封）。邮箱里的领取、空态、弹窗和 `MailBack` 不变。`MailBack` 接到 `Phase1Dispatch`，签到、七日、活动领奖、弹珠焚决仍排在同一轮 `HomeGate` 后面。`FriendsEntry` 的 `max_hit` 是 1，回到主界面后不会再次点进好友。
+
+`phase1/mail/back.png` 只关掉邮箱，回到好友页。回到主界面还要好友页自己的返回或关闭。这张图不存在，因此没有添加 `FriendsBack` 节点，也不要造 `phase1/friends/back.png`。真图裁到后，再加 `FriendsBack`（TemplateMatch + Click），插在 `MailBack` 和 `Phase1Dispatch` 之间。在此之前，邮件关完会停在好友页，`HomeGate` 认不到主界面锚点，`Phase1Dispatch` 大约 20 秒超时结束，不会死循环。整段领奖循环在邮件之后继续，目前就卡在这张还没裁的好友页返回上。
 
 ## 要在真机上核对的 OCR
 

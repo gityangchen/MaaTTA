@@ -212,6 +212,93 @@ class Phase1LayoutTests(unittest.TestCase):
         self.assertIn("份数上限", phase4)
         self.assertIn("activity", phase4)
 
+    def test_mail_path_is_home_friends_mail_then_dispatch(self):
+        nodes = _pipeline_nodes()
+        home_next = nodes["HomeGate"]["next"]
+        self.assertEqual(
+            home_next,
+            [
+                "FriendsEntry",
+                "SignInEntry",
+                "SevenDayEntry",
+                "ActivityAwardEntry",
+                "MarbleAwardEntry",
+            ],
+        )
+        self.assertNotIn("MailEntry", home_next)
+
+        dispatch_next = list(_refs(nodes["Phase1Dispatch"]["next"]))
+        self.assertIn("HomeGate", dispatch_next)
+        self.assertNotIn("MailEntry", dispatch_next)
+        self.assertNotIn("FriendsEntry", dispatch_next)
+
+        friends = nodes["FriendsEntry"]
+        self.assertEqual(friends["recognition"], "TemplateMatch")
+        self.assertEqual(friends["action"], "Click")
+        self.assertEqual(friends["template"], "phase1/friends/entry.png")
+        self.assertEqual(friends["max_hit"], 1)
+        self.assertEqual(friends["next"], ["FriendsBoard"])
+
+        board_next = nodes["FriendsBoard"]["next"]
+        by_name = {}
+        for item in board_next:
+            if isinstance(item, str):
+                by_name[item] = None
+            else:
+                by_name[item["name"]] = item
+        for popup in (
+            "PopupMaintenance",
+            "PopupUpdateLater",
+            "PopupNetworkConfirm",
+            "PopupGenericClose",
+            "PopupBlockingOcr",
+        ):
+            self.assertIn(popup, by_name)
+            self.assertTrue(by_name[popup]["jump_back"])
+        self.assertEqual(by_name["MailEntry"], None)
+        self.assertEqual(nodes["FriendsBoard"]["recognition"], "DirectHit")
+        self.assertEqual(nodes["FriendsBoard"]["action"], "DoNothing")
+
+        mail = nodes["MailEntry"]
+        self.assertEqual(mail["template"], "phase1/mail/entry.png")
+        self.assertEqual(mail["action"], "Click")
+        self.assertEqual(mail["next"], ["MailBoard"])
+        mail_board_next = list(_refs(nodes["MailBoard"]["next"]))
+        self.assertIn("MailEmpty", mail_board_next)
+        self.assertIn("MailEmptyOcr", mail_board_next)
+        self.assertIn("MailBack", mail_board_next)
+        self.assertIn("PopupNetworkConfirm", mail_board_next)
+        self.assertEqual(nodes["MailBack"]["next"], ["Phase1Dispatch"])
+        self.assertEqual(nodes["MailBack"]["template"], "phase1/mail/back.png")
+
+        templates = []
+        for node in nodes.values():
+            templates.extend(_templates(node))
+        self.assertIn("phase1/friends/entry.png", templates)
+        self.assertNotIn("phase1/friends/back.png", templates)
+        friends_entry = (
+            ROOT / "assets" / "resource" / "image" / "phase1" / "friends" / "entry.png"
+        )
+        self.assertTrue(friends_entry.is_file())
+        self.assertTrue(friends_entry.read_bytes().startswith(b"\x89PNG\r\n\x1a\n"))
+        self.assertFalse(
+            (ROOT / "assets" / "resource" / "image" / "phase1" / "friends" / "back.png").exists()
+        )
+
+        checklist = (ROOT / "docs" / "zh_cn" / "phase1_checklist.md").read_text(
+            encoding="utf-8"
+        )
+        report = (ROOT / "docs" / "zh_cn" / "phase1_crop_report.md").read_text(
+            encoding="utf-8"
+        )
+        for text in (checklist, report):
+            self.assertIn("主界面 → 好友 → 邮件", text)
+            self.assertIn("phase1/friends/entry.png", text)
+            self.assertIn("720×1280", text)
+            self.assertIn("FriendsBack", text)
+        self.assertIn("phase1/friends/entry.png", checklist)
+        self.assertIn("没有添加 `FriendsBack`", checklist)
+
     def test_packaged_agent_path_rewrite(self):
         install = _load_install()
         self.assertEqual(

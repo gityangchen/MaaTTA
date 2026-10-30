@@ -1,6 +1,47 @@
 {
+    "FriendsEntry": {
+        "desc": "主界面右侧「好友」入口，模板 image/phase1/friends/entry.png（已裁，约 105×100，含红色通知点）。红点消失导致匹配失败时，再追加一张无红点的图并把 template 改成数组，不要覆盖原图。点开后才有邮件图标。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/friends/entry.png",
+        "action": "Click",
+        "max_hit": 1,
+        "post_delay": 400,
+        "next": [
+            "FriendsBoard"
+        ]
+    },
+    "FriendsBoard": {
+        "desc": "好友页。挡路弹窗处理完跳回这里，再点右上角邮件。没有好友页返回图，本节点不负责回到主界面。",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "rate_limit": 400,
+        "timeout": 20000,
+        "next": [
+            {
+                "name": "PopupMaintenance",
+                "jump_back": true
+            },
+            {
+                "name": "PopupUpdateLater",
+                "jump_back": true
+            },
+            {
+                "name": "PopupNetworkConfirm",
+                "jump_back": true
+            },
+            {
+                "name": "PopupGenericClose",
+                "jump_back": true
+            },
+            {
+                "name": "PopupBlockingOcr",
+                "jump_back": true
+            },
+            "MailEntry"
+        ]
+    },
     "MailEntry": {
-        "desc": "TODO 裁 image/phase1/mail/entry.png：主界面邮件图标。红点若导致匹配失败，再追加 entry_dot.png 并把 template 改成数组。",
+        "desc": "好友页右上角信封（设置齿轮右侧），模板 image/phase1/mail/entry.png。不在主界面。红点若导致匹配失败，再追加 entry_dot.png 并把 template 改成数组。",
         "recognition": "TemplateMatch",
         "template": "phase1/mail/entry.png",
         "action": "Click",
@@ -78,7 +119,7 @@
         ]
     },
     "MailBack": {
-        "desc": "TODO 裁 image/phase1/mail/back.png：邮箱关闭或返回按钮。",
+        "desc": "image/phase1/mail/back.png：邮箱页底部关闭，只回到好友页，到不了主界面。接下来交给 Phase1Dispatch，好让同一轮领奖继续。好友页返回没有图，所以没有 FriendsBack 节点，也不要造 phase1/friends/back.png。画面仍在好友页时，分发认不到主界面锚点，约 20 秒超时结束。",
         "recognition": "TemplateMatch",
         "template": "phase1/mail/back.png",
         "action": "Click",
