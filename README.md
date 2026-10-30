@@ -14,6 +14,8 @@
 
 `assets/interface.json` 里的控制器是 Adb，`display_short_side` 为 720。截图会缩放到短边 720，模板图按这个尺寸裁。
 
+MuMu 上点击必须用 **AdbShell**（`adb shell input tap`）。默认的 Maatouch / minitouch / EmulatorExtras 会报成功，但坐标映偏，邮箱打不开。官方 Project Interface v2 不提供 Adb 输入字段。打包的通用 UI（MFAAvalonia）会读 `controller.adb.input`，这里写成整数 `1`（AdbShell）。MaaDebugger 的 Connect 不读它；Python 里连接请用 [agent/mumu_adb.py](agent/mumu_adb.py) 的 `connect_adb`。细节在 [docs/zh_cn/phase1_checklist.md](docs/zh_cn/phase1_checklist.md)。
+
 ## 路线图
 
 | 期 | 内容 | 授权档 | 状态 |
@@ -48,6 +50,7 @@ adb connect 127.0.0.1:16384
 3. 启动时会拉起 Agent：`python ../agent/main.py`。工作目录是 `assets/`，所以上面这个相对路径指向仓库根的 `agent/main.py`。
 4. 打包后的目录里，`interface.json` 和 `agent/` 同级。`tools/install.py` 会把参数改成 `./agent/main.py`。
 5. 先跑「调试·主界面锚点」，再跑「一期·领奖邮件」。
+6. MaaDebugger 的 Connect 用的是 AdbController 默认输入，**不会**因为 `interface.json` 里的 `adb.input` 改成 AdbShell。在调试器里点出来的点击仍可能点偏。要用 AdbShell 时，用 `agent/mumu_adb.connect_adb` 自己建控制器，或用打包后的通用 UI（它会读 `adb.input = 1`）。
 
 `python` 找不到时，把 `interface.json` 的 `agent.child_exec` 改成你机器上的解释器。
 
@@ -114,6 +117,7 @@ assets/resource/pipeline/phase3/      空说明
 assets/resource/pipeline/phase4/      空说明（含 MVP 礼盒 TODO）
 assets/resource/image/phase1/         裁图落点，目前没有 PNG
 agent/main.py                         Agent 入口
+agent/mumu_adb.py                     MuMu 只用 AdbShell 连接
 agent/cdk_auth.py                     check_license
 agent/cdk_action.py                   custom action check_cdk
 agent/cdk_reco.py                     custom recognition cdk_gate

@@ -15,9 +15,17 @@
         {
             "name": "MuMu 12",
             "label": "MuMu 12（ADB）",
-            "description": "默认 127.0.0.1:16384。模拟器锁定 1280×720、DPI 240。display_short_side 720，模板图按短边 720 裁。",
+            "description": "默认 127.0.0.1:16384。模拟器锁定 1280×720、DPI 240。display_short_side 720，模板图按短边 720 裁。点击只用 AdbShell（adb shell input tap）。MuMu 上默认的 Maatouch / minitouch / EmulatorExtras 会报点击成功，但触摸坐标映偏，邮箱打不开。",
             "type": "Adb",
-            "display_short_side": 720
+            "display_short_side": 720,
+            // 官方 Project Interface v2 不定义 Adb 的 input / screencap，协议写的是自动检测。
+            // 本仓库打包的通用 UI 是 MFAAvalonia，它会读 adb.input 这个整数位掩码并写入连接设置：
+            // 1 = AdbShell，2 = MinitouchAndAdbKey，4 = Maatouch，8 = EmulatorExtras。
+            // 必须是数字 1。写成字符串 "AdbShell" 时，对方按 long? 反序列化，这个控制器会加载失败。
+            // MaaDebugger 的 Connect 不读该字段，仍用 AdbController 默认输入。Python 连接见 agent/mumu_adb.py。
+            "adb": {
+                "input": 1
+            }
         }
         // 不使用 Win32。游戏跑在 MuMu 里，只走 ADB。
     ],

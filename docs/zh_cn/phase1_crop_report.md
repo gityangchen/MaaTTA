@@ -48,3 +48,11 @@ working tree 仅有未跟踪：phase1/home/、mail/、popup/ 下新 PNG。
 ## 追加
 - `phase1/friends/entry.png` 已加入（主界面右侧好友入口）。裁图约 105×100，含红色通知点，红点可能变化，按原图保留。邮件路径需要 主界面 → 好友 → 邮件；`mail/entry` 在好友页，不在主界面。
 - `phase1/friends/back.png` 已加入（好友页底部居中白色关闭 X）。裁图 100×100 RGBA。`FriendsBack` 插在 `MailBack` 与 `Phase1Dispatch` 之间，关掉好友层回到主界面。
+
+## 2026-10-30 MuMu 联调（竖屏 720×1280，ADB 127.0.0.1:16384）
+
+没有新图。下面两件是流水线配置，缺图清单不变。
+
+1. **点击输入。** AdbController 默认输入（Maatouch / minitouch，设备发现若带上 EmulatorExtras 会更优先）对 `phase1/mail/entry.png` 报点击成功（分数约 0.999，框 `[625, 48, 83, 84]`），邮箱不开，入口还在。改成 `MaaAdbInputMethodEnum.AdbShell` 后，同一次点击能打开邮件列表；好友入口同样能点开。AdbShell 走 `adb shell input tap`，坐标落在短边 720 的画面上。官方 PI v2 不能写 Adb 输入方式。`interface.json` 的 `adb.input` 设为整数 `1`，只因为打包的 MFAAvalonia 读这个位掩码。MaaDebugger 不读它，Python 连接用 `agent/mumu_adb.py`。`display_short_side` 仍是 720。
+2. **两个返回的底部 ROI。** 好友页上 `phase1/mail/back.png` 也会在底部白 X 打到 1.0，框 `[305, 1185, 110, 85]`。`phase1/friends/back.png` 限制到底部后在 `[310, 1140, 100, 100]` 打到 1.0；不限区域时中部有不少中等分数误匹配，默认又从左往右取。`MailBack.roi` = `[250, 1100, 220, 180]`，`FriendsBack.roi` = `[250, 1120, 220, 160]`。两个框都在 720×1280 里，并且包住对应探针框；模板 110×85 和 100×100 都比 ROI 小，Maa 是在 ROI 裁出来的图上做模板匹配。
+3. **仍然没有、也不要造的图：** `phase1/mail/claim.png`、`phase1/mail/empty.png`、`phase1/popup/maintenance.png`、`phase1/popup/update_later.png`、`phase1/popup/network_confirm.png`，以及签到 / 七日 / 活动领奖 / 弹珠焚决。空邮箱和这些弹窗这轮没出现。
