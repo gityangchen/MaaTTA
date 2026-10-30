@@ -1,0 +1,90 @@
+{
+    "MailEntry": {
+        "desc": "TODO 裁 image/phase1/mail/entry.png：主界面邮件图标。红点若导致匹配失败，再追加 entry_dot.png 并把 template 改成数组。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/mail/entry.png",
+        "action": "Click",
+        "max_hit": 1,
+        "post_delay": 400,
+        "next": [
+            "MailBoard"
+        ]
+    },
+    "MailBoard": {
+        "desc": "邮箱界面。有领取按钮就点，空邮箱就返回，否则点返回。弹窗处理完会跳回这里。",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "rate_limit": 400,
+        "timeout": 20000,
+        "next": [
+            {
+                "name": "PopupMaintenance",
+                "jump_back": true
+            },
+            {
+                "name": "PopupUpdateLater",
+                "jump_back": true
+            },
+            {
+                "name": "PopupNetworkConfirm",
+                "jump_back": true
+            },
+            {
+                "name": "PopupGenericClose",
+                "jump_back": true
+            },
+            {
+                "name": "PopupBlockingOcr",
+                "jump_back": true
+            },
+            "MailClaim",
+            "MailEmpty",
+            "MailEmptyOcr",
+            "MailBack"
+        ]
+    },
+    "MailClaim": {
+        "desc": "TODO 裁 image/phase1/mail/claim.png：一键领取或单封领取按钮本身。点到按钮消失，最多 8 次。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/mail/claim.png",
+        "action": "Click",
+        "max_hit": 8,
+        "post_delay": 400,
+        "next": [
+            "MailBoard"
+        ]
+    },
+    "MailEmpty": {
+        "desc": "TODO 裁 image/phase1/mail/empty.png：空邮箱的空态插画或「没有邮件」固定文案区域。认到就去返回，不点击空态本身。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/mail/empty.png",
+        "action": "DoNothing",
+        "next": [
+            "MailBack"
+        ]
+    },
+    "MailEmptyOcr": {
+        "desc": "空邮箱 OCR 兜底。expected 是占位文案，真机核对后改成界面上的原句。",
+        "recognition": "OCR",
+        "expected": [
+            "没有邮件",
+            "暂无邮件",
+            "邮箱为空",
+            "空空如也"
+        ],
+        "action": "DoNothing",
+        "next": [
+            "MailBack"
+        ]
+    },
+    "MailBack": {
+        "desc": "TODO 裁 image/phase1/mail/back.png：邮箱关闭或返回按钮。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/mail/back.png",
+        "action": "Click",
+        "post_delay": 400,
+        "next": [
+            "Phase1Dispatch"
+        ]
+    }
+}

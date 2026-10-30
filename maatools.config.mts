@@ -6,9 +6,10 @@ const config: FullConfig = {
   interfacePath: 'assets/interface.json',
   check: {
     override: {
-      // 忽略 mpe-config 带来的报错
-      // ignore warning caused by mpe-config
-      // 'mpe-config': 'ignore'
+      // 一期模板图还没从 MuMu 裁进来，路径写在 pipeline 里，文件故意不提交。
+      // 裁图落地后删掉这条，否则写错文件名也不会再报错。
+      // Phase-1 crops are not in git yet. Remove this once the PNGs exist.
+      'unknown-image': 'ignore'
     }
   }
 }

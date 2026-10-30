@@ -1,0 +1,232 @@
+{
+    "SignInEntry": {
+        "desc": "TODO 裁 image/phase1/award/signin_entry.png。签到入口。若不在主界面，在本节点和 SignInBoard 之间插入中间页，不要改分辨率。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/award/signin_entry.png",
+        "action": "Click",
+        "max_hit": 1,
+        "post_delay": 400,
+        "next": [
+            "SignInBoard"
+        ]
+    },
+    "SignInBoard": {
+        "desc": "签到面板。可领则点领取，已签到文案或返回键则离开。",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "rate_limit": 400,
+        "timeout": 20000,
+        "next": [
+            {
+                "name": "PopupMaintenance",
+                "jump_back": true
+            },
+            {
+                "name": "PopupUpdateLater",
+                "jump_back": true
+            },
+            {
+                "name": "PopupNetworkConfirm",
+                "jump_back": true
+            },
+            {
+                "name": "PopupGenericClose",
+                "jump_back": true
+            },
+            {
+                "name": "PopupBlockingOcr",
+                "jump_back": true
+            },
+            "SignInClaim",
+            "SignInDoneOcr",
+            "SignInBack"
+        ]
+    },
+    "SignInClaim": {
+        "desc": "TODO 裁 image/phase1/award/signin_claim.png：签到面板上的领取/签到按钮。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/award/signin_claim.png",
+        "action": "Click",
+        "max_hit": 4,
+        "post_delay": 400,
+        "next": [
+            "SignInBoard"
+        ]
+    },
+    "SignInDoneOcr": {
+        "desc": "已签到态 OCR。文案待真机核对。",
+        "recognition": "OCR",
+        "expected": [
+            "已签到",
+            "明日再来",
+            "已领取"
+        ],
+        "action": "DoNothing",
+        "next": [
+            "SignInBack"
+        ]
+    },
+    "SignInBack": {
+        "desc": "TODO 裁 image/phase1/award/signin_back.png：离开签到面板的返回或关闭。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/award/signin_back.png",
+        "action": "Click",
+        "post_delay": 400,
+        "next": [
+            "Phase1Dispatch"
+        ]
+    },
+    "SevenDayEntry": {
+        "desc": "TODO 裁 image/phase1/award/sevenday_entry.png。七日入口。格子若是七个独立按钮，领取图改裁「可领取」那一格，或把 SevenDayClaim.template 改成目录。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/award/sevenday_entry.png",
+        "action": "Click",
+        "max_hit": 1,
+        "post_delay": 400,
+        "next": [
+            "SevenDayBoard"
+        ]
+    },
+    "SevenDayBoard": {
+        "desc": "七日面板分发。",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "rate_limit": 400,
+        "timeout": 20000,
+        "next": [
+            {
+                "name": "PopupMaintenance",
+                "jump_back": true
+            },
+            {
+                "name": "PopupUpdateLater",
+                "jump_back": true
+            },
+            {
+                "name": "PopupNetworkConfirm",
+                "jump_back": true
+            },
+            {
+                "name": "PopupGenericClose",
+                "jump_back": true
+            },
+            {
+                "name": "PopupBlockingOcr",
+                "jump_back": true
+            },
+            "SevenDayClaim",
+            "SevenDayDoneOcr",
+            "SevenDayBack"
+        ]
+    },
+    "SevenDayClaim": {
+        "desc": "TODO 裁 image/phase1/award/sevenday_claim.png：当前可领的那一天，不要把七天整页裁成一张。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/award/sevenday_claim.png",
+        "action": "Click",
+        "max_hit": 8,
+        "post_delay": 400,
+        "next": [
+            "SevenDayBoard"
+        ]
+    },
+    "SevenDayDoneOcr": {
+        "desc": "七日已领完的 OCR 占位。文案待核对。",
+        "recognition": "OCR",
+        "expected": [
+            "已领取",
+            "明日可领",
+            "全部领完"
+        ],
+        "action": "DoNothing",
+        "next": [
+            "SevenDayBack"
+        ]
+    },
+    "SevenDayBack": {
+        "desc": "TODO 裁 image/phase1/award/sevenday_back.png。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/award/sevenday_back.png",
+        "action": "Click",
+        "post_delay": 400,
+        "next": [
+            "Phase1Dispatch"
+        ]
+    },
+    "ActivityAwardEntry": {
+        "desc": "活动领奖入口（分组骨架）。TODO 裁 image/phase1/award/activity_entry.png。在线奖励、通行证、限时活动页等尚未拆节点；真机确认有独立图标后再加，不要塞进这一张图。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/award/activity_entry.png",
+        "action": "Click",
+        "max_hit": 1,
+        "post_delay": 400,
+        "next": [
+            "ActivityAwardBoard"
+        ]
+    },
+    "ActivityAwardBoard": {
+        "desc": "活动领奖面板。多个领取按钮靠 ActivityAwardClaim 重复点击，最多 8 次。",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "rate_limit": 400,
+        "timeout": 20000,
+        "next": [
+            {
+                "name": "PopupMaintenance",
+                "jump_back": true
+            },
+            {
+                "name": "PopupUpdateLater",
+                "jump_back": true
+            },
+            {
+                "name": "PopupNetworkConfirm",
+                "jump_back": true
+            },
+            {
+                "name": "PopupGenericClose",
+                "jump_back": true
+            },
+            {
+                "name": "PopupBlockingOcr",
+                "jump_back": true
+            },
+            "ActivityAwardClaim",
+            "ActivityAwardDoneOcr",
+            "ActivityAwardBack"
+        ]
+    },
+    "ActivityAwardClaim": {
+        "desc": "TODO 裁 image/phase1/award/activity_claim.png：面板上的领取按钮。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/award/activity_claim.png",
+        "action": "Click",
+        "max_hit": 8,
+        "post_delay": 400,
+        "next": [
+            "ActivityAwardBoard"
+        ]
+    },
+    "ActivityAwardDoneOcr": {
+        "desc": "活动奖励已领完的 OCR 占位。文案待核对。",
+        "recognition": "OCR",
+        "expected": [
+            "已领取",
+            "明日再来"
+        ],
+        "action": "DoNothing",
+        "next": [
+            "ActivityAwardBack"
+        ]
+    },
+    "ActivityAwardBack": {
+        "desc": "TODO 裁 image/phase1/award/activity_back.png。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/award/activity_back.png",
+        "action": "Click",
+        "post_delay": 400,
+        "next": [
+            "Phase1Dispatch"
+        ]
+    }
+}
