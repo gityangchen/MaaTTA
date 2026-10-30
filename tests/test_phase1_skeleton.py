@@ -187,6 +187,7 @@ class Phase1LayoutTests(unittest.TestCase):
         self.assertEqual(
             pngs,
             [
+                "friends/back.png",
                 "friends/entry.png",
                 "home/anchor.png",
                 "mail/back.png",
@@ -268,22 +269,30 @@ class Phase1LayoutTests(unittest.TestCase):
         self.assertIn("MailEmptyOcr", mail_board_next)
         self.assertIn("MailBack", mail_board_next)
         self.assertIn("PopupNetworkConfirm", mail_board_next)
-        self.assertEqual(nodes["MailBack"]["next"], ["Phase1Dispatch"])
+        self.assertEqual(nodes["MailBack"]["next"], ["FriendsBack"])
         self.assertEqual(nodes["MailBack"]["template"], "phase1/mail/back.png")
+
+        friends_back = nodes["FriendsBack"]
+        self.assertEqual(friends_back["recognition"], "TemplateMatch")
+        self.assertEqual(friends_back["action"], "Click")
+        self.assertEqual(friends_back["template"], "phase1/friends/back.png")
+        self.assertEqual(friends_back["next"], ["Phase1Dispatch"])
 
         templates = []
         for node in nodes.values():
             templates.extend(_templates(node))
         self.assertIn("phase1/friends/entry.png", templates)
-        self.assertNotIn("phase1/friends/back.png", templates)
+        self.assertIn("phase1/friends/back.png", templates)
         friends_entry = (
             ROOT / "assets" / "resource" / "image" / "phase1" / "friends" / "entry.png"
         )
         self.assertTrue(friends_entry.is_file())
         self.assertTrue(friends_entry.read_bytes().startswith(b"\x89PNG\r\n\x1a\n"))
-        self.assertFalse(
-            (ROOT / "assets" / "resource" / "image" / "phase1" / "friends" / "back.png").exists()
+        friends_back_png = (
+            ROOT / "assets" / "resource" / "image" / "phase1" / "friends" / "back.png"
         )
+        self.assertTrue(friends_back_png.is_file())
+        self.assertTrue(friends_back_png.read_bytes().startswith(b"\x89PNG\r\n\x1a\n"))
 
         checklist = (ROOT / "docs" / "zh_cn" / "phase1_checklist.md").read_text(
             encoding="utf-8"
@@ -297,7 +306,9 @@ class Phase1LayoutTests(unittest.TestCase):
             self.assertIn("720×1280", text)
             self.assertIn("FriendsBack", text)
         self.assertIn("phase1/friends/entry.png", checklist)
-        self.assertIn("没有添加 `FriendsBack`", checklist)
+        self.assertIn("phase1/friends/back.png", checklist)
+        self.assertIn("`FriendsBack`", checklist)
+        self.assertNotIn("不要造 `phase1/friends/back.png`", checklist)
 
     def test_packaged_agent_path_rewrite(self):
         install = _load_install()
