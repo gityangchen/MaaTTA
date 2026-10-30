@@ -17,16 +17,23 @@ from configure import configure_ocr_model
 
 working_dir = Path(__file__).parent.parent.resolve()
 install_path = working_dir / Path("install")
-version = len(sys.argv) > 1 and sys.argv[1] or "v0.0.1"
+version = "v0.0.1"
+os_name = ""
+arch = ""
 
-# the first parameter is self name
-if sys.argv.__len__() < 4:
-    print("Usage: python install.py <version> <os> <arch>")
-    print("Example: python install.py v1.0.0 win x86_64")
-    sys.exit(1)
 
-os_name = sys.argv[2]
-arch = sys.argv[3]
+def packaged_agent_args(child_args):
+    """开发期 interface.json 在 assets/，Agent 参数是 ../agent/main.py。
+
+    打包目录里 interface.json 与 agent/ 同级，这一条要改成 ./agent/main.py。
+    """
+    rewritten = []
+    for arg in child_args or []:
+        if arg == "../agent/main.py":
+            rewritten.append("./agent/main.py")
+        else:
+            rewritten.append(arg)
+    return rewritten
 
 
 def get_dotnet_platform_tag():
@@ -117,6 +124,13 @@ def install_resource():
         interface = jsonc.load(f)
 
     interface["version"] = version
+    agent_cfg = interface.get("agent")
+    if isinstance(agent_cfg, dict):
+        agent_cfg["child_args"] = packaged_agent_args(agent_cfg.get("child_args"))
+    elif isinstance(agent_cfg, list):
+        for item in agent_cfg:
+            if isinstance(item, dict):
+                item["child_args"] = packaged_agent_args(item.get("child_args"))
 
     with open(install_path / "interface.json", "w", encoding="utf-8") as f:
         jsonc.dump(interface, f, ensure_ascii=False, indent=4)
@@ -141,10 +155,25 @@ def install_agent():
     )
 
 
-if __name__ == "__main__":
+def main():
+    global version, os_name, arch
+
+    if len(sys.argv) < 4:
+        print("Usage: python install.py <version> <os> <arch>")
+        print("Example: python install.py v1.0.0 win x86_64")
+        sys.exit(1)
+
+    version = sys.argv[1]
+    os_name = sys.argv[2]
+    arch = sys.argv[3]
+
     install_deps()
     install_resource()
     install_chores()
     install_agent()
 
     print(f"Install to {install_path} successfully.")
+
+
+if __name__ == "__main__":
+    main()

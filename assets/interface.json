@@ -1,109 +1,96 @@
 {
-    // 本文件主要定义了通用 UI 的行为和显示内容
-    // 可参考文档和示例添加更多您需要的功能
-    // 文档：https://maafw.xyz/docs/3.3-ProjectInterfaceV2
-    // 示例：https://github.com/MaaXYZ/MaaFramework/blob/main/sample/interface.json
+    // 通用 UI 的项目描述。文档：https://maafw.xyz/docs/3.3-ProjectInterfaceV2
     "interface_version": 2,
-    "name": "MaaXXX",
-    "description": "这是一个使用 MaaFramework 创建的新项目。",
-    "contact": "QQ群: 123456789",
+    "name": "MaaTTA",
+    "label": "塔塔冒险队自动挂机",
+    "description": "塔塔冒险队 Windows + MuMu 自动挂机。当前仓库是一期（领奖/邮件）骨架，模板图尚未采集。",
+    "contact": "https://github.com/gityangchen/MaaTTA",
     "license": "MIT",
-    "welcome": "首次使用！欢迎使用 MAA!",
-    // 填写项目地址和版本号可实现自动更新功能
-    "github": "https://github.com/MaaXYZ/MaaPracticeBoilerplate",
-    "version": "1.0.0",
-    // Mirror酱为第三方分发服务，新项目默认关闭
-    // 若有需要请联系 Mirror酱 开通，直接自行开启是无法使用的
-    // "mirrorchyan_rid": "MaaXXX",
-    // "mirrorchyan_multiplatform": true,
+    "welcome": "欢迎使用 MaaTTA。一期流水线已搭好，但 image/phase1 下还没有真机裁图，直接跑会在主界面锚点超时。请先按 docs/zh_cn/phase1_checklist.md 裁图。CDK 默认开发放行，不会连接发码服务器。",
+    "github": "https://github.com/gityangchen/MaaTTA",
+    "version": "0.1.0",
+    // Mirror酱未开通，保持关闭。
+    // "mirrorchyan_rid": "MaaTTA",
     "controller": [
         {
-            "name": "安卓端",
+            "name": "MuMu 12",
+            "label": "MuMu 12（ADB）",
+            "description": "默认 127.0.0.1:16384。模拟器锁定 1280×720、DPI 240。display_short_side 720，模板图按短边 720 裁。",
             "type": "Adb",
-            "display_short_side": 720 // 默认缩放分辨率的短边长度
-        },
-        {
-            "name": "桌面端",
-            "type": "Win32",
-            "win32": {
-                "class_regex": ".*",
-                "window_regex": "Visual Studio",
-                // 截图及控制方式，请根据项目实际情况修改
-                // 文档: https://maafw.xyz/docs/2.4-ControlMethods
-                "screencap": "PrintWindow", // 截图方式
-                "mouse": "PostMessageWithCursorPos", // 鼠标控制方式
-                "keyboard": "PostMessageWithCursorPos" // 键盘控制方式
-            }
+            "display_short_side": 720
         }
+        // 不使用 Win32。游戏跑在 MuMu 里，只走 ADB。
     ],
     "resource": [
         {
-            "name": "官服",
+            "name": "默认",
             "path": [
                 "./resource"
-            ]
-        },
-        {
-            "name": "B 服",
-            "path": [
-                "./resource"
-                // "./resource_bilibili"
             ]
         }
     ],
-    // 可选的 agent 示例
-    // "agent": {
-    //     "child_exec": "python",
-    //     "child_args": [
-    //         "./agent/main.py"
-    //     ]
-    // },
+    "group": [
+        {
+            "name": "phase1",
+            "label": "一期 · 领奖/邮件",
+            "description": "主界面锚点、邮件、签到/七日/活动领奖、弹珠焚决领奖，以及维护/更新/网络弹窗。"
+        },
+        {
+            "name": "debug",
+            "label": "调试",
+            "description": "裁图和 CDK 桩。不包含二期及以后的正式任务。"
+        }
+    ],
+    // 开发时 CWD 是本文件所在的 assets/，所以脚本路径是 ../agent/main.py。
+    // tools/install.py 打包时会把这一条改成 ./agent/main.py（与 interface.json 同级）。
+    "agent": {
+        "child_exec": "python",
+        "child_args": [
+            "../agent/main.py"
+        ]
+    },
     "task": [
         {
-            "name": "普通任务",
-            "entry": "MyTask1"
-        },
-        {
-            "name": "选项任务",
-            "entry": "MyTask2",
-            "option": [
-                "任务选项1"
-            ]
-        },
-        {
-            "name": "参数任务",
-            "entry": "MyTask3",
-            "option": [
-                "任务选项1"
+            "name": "一期·领奖邮件",
+            "label": "一期·领奖邮件",
+            "entry": "Phase1AwardMail",
+            "group": [
+                "phase1"
             ],
-            "pipeline_override": {}
+            "default_check": true,
+            "description": "CDK base 门闩后，从主界面依次尝试邮件、签到、七日、活动领奖、弹珠焚决。模板未裁齐时会在对应节点超时。",
+            "controller": [
+                "MuMu 12"
+            ]
         },
         {
-            "name": "自定义识别与动作示例",
-            "entry": "FindSmallestNumber"
-        }
-    ],
-    "option": {
-        "任务选项1": {
-            "type": "select",
-            "cases": [
-                {
-                    "name": "文本1",
-                    "pipeline_override": {
-                        "OcrTask": {
-                            "text": "文本1"
-                        }
-                    }
-                },
-                {
-                    "name": "文本2",
-                    "pipeline_override": {
-                        "OcrTask": {
-                            "text": "文本2"
-                        }
-                    }
-                }
+            "name": "调试·主界面锚点",
+            "label": "调试·主界面锚点",
+            "entry": "HomeAnchorProbe",
+            "group": [
+                "debug"
+            ],
+            "default_check": false,
+            "description": "只识别 image/phase1/home/anchor.png，不点击。用来确认 1280×720 / 短边 720 的裁图。",
+            "controller": [
+                "MuMu 12"
+            ]
+        },
+        {
+            "name": "CDK 校验(开发)",
+            "label": "CDK 校验(开发)",
+            "entry": "CdkCheckDev",
+            "group": [
+                "debug"
+            ],
+            "default_check": false,
+            "description": "依次走 base 与 activity。默认放行。把 MAATTA_DEV_SKIP_CDK 设为 0 后，空的 MAATTA_CDK 会失败。",
+            "controller": [
+                "MuMu 12"
             ]
         }
-    }
+    ]
+    // 二期每日任务、三期刷关、四期钓鱼赛跑都还没有任务入口。
+    // 四期附属 MVP 礼盒（搜 UID → 拜访家园 → 领盒 + 份数上限）只在
+    // assets/resource/pipeline/phase4/README.md 留了说明，授权档位预留 activity。
 }

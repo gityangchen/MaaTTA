@@ -3,8 +3,8 @@ import sys
 from maa.agent.agent_server import AgentServer
 from maa.toolkit import Toolkit
 
-import my_action
-import my_reco
+import cdk_action  # noqa: F401  导入时注册 check_cdk
+import cdk_reco  # noqa: F401  导入时注册 cdk_gate
 
 
 def main():

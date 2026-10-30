@@ -1,0 +1,64 @@
+{
+    "Phase1AwardMail": {
+        "desc": "一期入口。先过 base 档 CDK（开发模式默认通过），再进入主界面分发。activity 档不在这条链路里。模板清单见 docs/zh_cn/phase1_checklist.md。",
+        "recognition": "Custom",
+        "custom_recognition": "cdk_gate",
+        "custom_recognition_param": {
+            "feature": "base"
+        },
+        "action": "DoNothing",
+        "timeout": 10000,
+        "next": [
+            "Phase1Dispatch"
+        ]
+    },
+    "Phase1Dispatch": {
+        "desc": "先处理挡路弹窗（处理完跳回这里），再认主界面锚点。锚点图还没放进来时，本节点大约 20 秒后超时，这是预期结果。",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "rate_limit": 500,
+        "timeout": 20000,
+        "next": [
+            {
+                "name": "PopupMaintenance",
+                "jump_back": true
+            },
+            {
+                "name": "PopupUpdateLater",
+                "jump_back": true
+            },
+            {
+                "name": "PopupNetworkConfirm",
+                "jump_back": true
+            },
+            {
+                "name": "PopupBlockingOcr",
+                "jump_back": true
+            },
+            "HomeGate"
+        ]
+    },
+    "HomeGate": {
+        "desc": "TODO 裁 image/phase1/home/anchor.png。命中主界面后按顺序尝试邮件、签到、七日、活动领奖、弹珠焚决。某个入口这轮不在屏幕上就试下一个。全部试完或都认不到时，本节点超时结束。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/home/anchor.png",
+        "action": "DoNothing",
+        "anchor": "Home",
+        "rate_limit": 500,
+        "timeout": 20000,
+        "next": [
+            "MailEntry",
+            "SignInEntry",
+            "SevenDayEntry",
+            "ActivityAwardEntry",
+            "MarbleAwardEntry"
+        ]
+    },
+    "HomeAnchorProbe": {
+        "desc": "调试任务入口。只认主界面锚点，不点击、不进入领奖。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/home/anchor.png",
+        "action": "DoNothing",
+        "timeout": 15000
+    }
+}

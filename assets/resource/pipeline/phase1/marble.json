@@ -1,0 +1,78 @@
+{
+    "MarbleAwardEntry": {
+        "desc": "弹珠焚决领奖骨架。TODO 裁 image/phase1/marble/entry.png。真机路径未确认，当前假设：主界面入口 → 活动页 → 领取 → 返回。多出来的页面插在本节点和 MarbleAwardBoard 之间。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/marble/entry.png",
+        "action": "Click",
+        "max_hit": 1,
+        "post_delay": 400,
+        "next": [
+            "MarbleAwardBoard"
+        ]
+    },
+    "MarbleAwardBoard": {
+        "desc": "弹珠焚决领奖页分发。",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "rate_limit": 400,
+        "timeout": 20000,
+        "next": [
+            {
+                "name": "PopupMaintenance",
+                "jump_back": true
+            },
+            {
+                "name": "PopupUpdateLater",
+                "jump_back": true
+            },
+            {
+                "name": "PopupNetworkConfirm",
+                "jump_back": true
+            },
+            {
+                "name": "PopupGenericClose",
+                "jump_back": true
+            },
+            {
+                "name": "PopupBlockingOcr",
+                "jump_back": true
+            },
+            "MarbleClaim",
+            "MarbleDoneOcr",
+            "MarbleBack"
+        ]
+    },
+    "MarbleClaim": {
+        "desc": "TODO 裁 image/phase1/marble/claim.png：领奖按钮本身。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/marble/claim.png",
+        "action": "Click",
+        "max_hit": 8,
+        "post_delay": 400,
+        "next": [
+            "MarbleAwardBoard"
+        ]
+    },
+    "MarbleDoneOcr": {
+        "desc": "弹珠焚决已领完的 OCR 占位。文案待核对。",
+        "recognition": "OCR",
+        "expected": [
+            "已领取",
+            "暂无奖励"
+        ],
+        "action": "DoNothing",
+        "next": [
+            "MarbleBack"
+        ]
+    },
+    "MarbleBack": {
+        "desc": "TODO 裁 image/phase1/marble/back.png：从焚决页回到主界面的返回。若要经过多层，拆成多个返回节点再接到 Phase1Dispatch。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/marble/back.png",
+        "action": "Click",
+        "post_delay": 400,
+        "next": [
+            "Phase1Dispatch"
+        ]
+    }
+}

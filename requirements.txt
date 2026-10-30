@@ -1,0 +1,2 @@
+# Python agent（建议 3.12）。PyPI 包名是 maafw，import 名是 maa。
+maafw>=5,<6

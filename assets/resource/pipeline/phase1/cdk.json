@@ -1,0 +1,33 @@
+{
+    "CdkCheckDev": {
+        "desc": "开发调试入口。默认 MAATTA_DEV_SKIP_CDK 未设置即通过 base。设为 0 且 MAATTA_CDK 为空时，本节点识别失败。不访问发码服务器。",
+        "recognition": "Custom",
+        "custom_recognition": "cdk_gate",
+        "custom_recognition_param": {
+            "feature": "base"
+        },
+        "action": "Custom",
+        "custom_action": "check_cdk",
+        "custom_action_param": {
+            "feature": "base"
+        },
+        "timeout": 10000,
+        "next": [
+            "CdkCheckActivity"
+        ]
+    },
+    "CdkCheckActivity": {
+        "desc": "activity 档同样默认放行。钓鱼、围猎、MVP 礼盒以及四期钓鱼赛跑以后走这一档。一期领奖邮件不调用它。",
+        "recognition": "Custom",
+        "custom_recognition": "cdk_gate",
+        "custom_recognition_param": {
+            "feature": "activity"
+        },
+        "action": "Custom",
+        "custom_action": "check_cdk",
+        "custom_action_param": {
+            "feature": "activity"
+        },
+        "timeout": 10000
+    }
+}

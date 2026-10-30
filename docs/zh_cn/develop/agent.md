@@ -1,6 +1,9 @@
 # AgentServer 编写指引
 
 > [!NOTE]
+> MaaTTA 已去掉模板仓库的 `my_action.py` / `my_reco.py`。当前实现是 [cdk_auth.py](/agent/cdk_auth.py) 的 `check_license`，由 [cdk_action.py](/agent/cdk_action.py)（`check_cdk`）和 [cdk_reco.py](/agent/cdk_reco.py)（`cdk_gate`）注册。[main.py](/agent/main.py) 导入这两个模块。下文的 `find_smallest_number` / `click_target` 只说明自定义识别和动作怎么写，仓库里没有这些文件。
+
+> [!NOTE]
 > Agent 属于 MaaFramework 的高级功能之一。在学习本章节以前请确保你已经掌握以下技能，否则请先学习[基础](/docs/zh_cn/develop/how_to_develop.md)的编写方法。
 >
 > - 至少熟练掌握一门编程语言，并理解面向对象的实现方法。
@@ -53,7 +56,7 @@ pip install MaaFw
 
 #### 基本结构
 
-完整内容请参考 [my_reco.py](/agent/my_reco.py)。
+当前仓库里的注册示例见 [cdk_reco.py](/agent/cdk_reco.py)。下面是同一写法的最小结构：
 
 ```python
 from maa.agent.agent_server import AgentServer
@@ -118,7 +121,7 @@ rois = param["candidate_rois"]
 
 #### 基本结构
 
-完整内容请参考 [my_action.py](/agent/my_action.py)。
+当前仓库里的注册示例见 [cdk_action.py](/agent/cdk_action.py)。下面是同一写法的最小结构：
 
 ```python
 # my_action.py
@@ -165,8 +168,8 @@ class ClickTargetAction(CustomAction):
 ```python
 # main.py
 ...
-import my_action
-import my_reco
+import cdk_action
+import cdk_reco
 
 
 def main():
@@ -185,15 +188,15 @@ if __name__ == "__main__":
   <summary><b>原理说明</b></summary>
 
 ```python
-# my_action.py
+# cdk_action.py
 ...
 
 
-@AgentServer.custom_action("click_target")
-class ClickTargetAction(CustomAction): ...
+@AgentServer.custom_action("check_cdk")
+class CheckCdkAction(CustomAction): ...
 ```
 
-虽然没有在 `main.py` 中进行显式调用，但这里利用了 Python 的特性，在导入时会自动执行 `my_action.py` 中的 `@AgentServer.custom_action` 装饰器，将 `ClickTargetAction` 注册到 `AgentServer` 中。
+虽然没有在 `main.py` 中进行显式调用，但这里利用了 Python 的特性，在导入时会自动执行 `cdk_action.py` 中的 `@AgentServer.custom_action` 装饰器，将动作类注册到 `AgentServer` 中。`cdk_reco.py` 同样在导入时注册。
 
 </details>
 
