@@ -15,6 +15,7 @@
 | --- | --- | --- |
 | phase1/home/anchor.png | 已裁 | 主界面「建筑商店」固定角标（避开动画/红点/公告） |
 | phase1/friends/entry.png | 已裁 | 主界面右侧好友入口，约 105×100，含红色通知点。流水线 `FriendsEntry` 使用这张图 |
+| phase1/friends/back.png | 已裁 | 好友页（找朋友）底部居中白色关闭 X，100×100 RGBA。流水线 `FriendsBack` 使用这张图 |
 | phase1/mail/entry.png | 已裁 | 信封图标；**不在主界面**，在「好友」页右上角（设置齿轮右侧）。流水线 `MailEntry` 仍用这张图 |
 | phase1/mail/claim.png | 缺 | 列表附件多为已领绿勾；独立领取按钮未出现，已删除错误 claim.png |
 | phase1/mail/back.png | 已裁 | 邮箱页底部关闭 X |
@@ -35,8 +36,8 @@
 | phase1/popup/network_confirm.png | **未出现** | 无网络异常弹窗 |
 
 ## 流水线需知（避免卡死）
-1. **邮件链路**已改成 主界面 → 好友 → 邮件：`HomeGate` → `FriendsEntry`（已有 `phase1/friends/entry.png`，含红点）→ `FriendsBoard` → `MailEntry`（已有 `phase1/mail/entry.png`）→ `MailBoard` → `MailBack` → `Phase1Dispatch`。竖屏仍是 720×1280。
-2. `phase1/mail/back.png` 只关邮箱，回到好友页。回到主界面还要好友页返回/关闭。没有这张图，因此没有添加 `FriendsBack` 节点，也不要造 `phase1/friends/back.png`。真图裁到后再把 `FriendsBack` 插在 `MailBack` 和 `Phase1Dispatch` 之间。在此之前邮件关完停在好友页，分发认不到主界面锚点，约 20 秒超时结束，不会死循环。
+1. **邮件链路**已改成 主界面 → 好友 → 邮件：`HomeGate` → `FriendsEntry`（已有 `phase1/friends/entry.png`，含红点）→ `FriendsBoard` → `MailEntry`（已有 `phase1/mail/entry.png`）→ `MailBoard` → `MailBack` → `FriendsBack`（`phase1/friends/back.png`）→ `Phase1Dispatch`。竖屏仍是 720×1280。
+2. `phase1/mail/back.png` 只关邮箱，回到好友页。`FriendsBack` 已插在 `MailBack` 和 `Phase1Dispatch` 之间，用 `phase1/friends/back.png`（底部居中白色关闭 X，100×100）关掉好友层回到主界面。认不到这张关闭图时，分发认不到主界面锚点，约 20 秒超时结束，不会死循环。
 3. 弹窗模板缺图时，依赖 PopupBlockingOcr + 已有 generic_close；维护/更新/网络按钮图未采到，OCR 兜底仍可 StopTask，避免空转卡死。好友页 `FriendsBoard` 与邮箱 `MailBoard` 都会先看这些弹窗。
 4. 未跑 MaaDebugger 缩放校验；源图短边已是 720。建议父代理用「调试·主界面锚点」验 anchor。
 5. **未 git commit / push**（必填模板未齐）。
@@ -46,3 +47,4 @@ working tree 仅有未跟踪：phase1/home/、mail/、popup/ 下新 PNG。
 
 ## 追加
 - `phase1/friends/entry.png` 已加入（主界面右侧好友入口）。裁图约 105×100，含红色通知点，红点可能变化，按原图保留。邮件路径需要 主界面 → 好友 → 邮件；`mail/entry` 在好友页，不在主界面。
+- `phase1/friends/back.png` 已加入（好友页底部居中白色关闭 X）。裁图 100×100 RGBA。`FriendsBack` 插在 `MailBack` 与 `Phase1Dispatch` 之间，关掉好友层回到主界面。

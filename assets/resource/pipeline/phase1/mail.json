@@ -11,7 +11,7 @@
         ]
     },
     "FriendsBoard": {
-        "desc": "好友页。挡路弹窗处理完跳回这里，再点右上角邮件。没有好友页返回图，本节点不负责回到主界面。",
+        "desc": "好友页。挡路弹窗处理完跳回这里，再点右上角邮件。回到主界面不在这里做：邮件关完后由 FriendsBack 点底部关闭 X。",
         "recognition": "DirectHit",
         "action": "DoNothing",
         "rate_limit": 400,
@@ -119,9 +119,19 @@
         ]
     },
     "MailBack": {
-        "desc": "image/phase1/mail/back.png：邮箱页底部关闭，只回到好友页，到不了主界面。接下来交给 Phase1Dispatch，好让同一轮领奖继续。好友页返回没有图，所以没有 FriendsBack 节点，也不要造 phase1/friends/back.png。画面仍在好友页时，分发认不到主界面锚点，约 20 秒超时结束。",
+        "desc": "image/phase1/mail/back.png：邮箱页底部关闭，只回到好友页。接下来交给 FriendsBack 关掉好友层，再回 Phase1Dispatch，好让同一轮领奖继续。",
         "recognition": "TemplateMatch",
         "template": "phase1/mail/back.png",
+        "action": "Click",
+        "post_delay": 400,
+        "next": [
+            "FriendsBack"
+        ]
+    },
+    "FriendsBack": {
+        "desc": "image/phase1/friends/back.png：好友页（找朋友）底部居中白色关闭 X，100×100 RGBA。点它关掉好友层，回到主界面。",
+        "recognition": "TemplateMatch",
+        "template": "phase1/friends/back.png",
         "action": "Click",
         "post_delay": 400,
         "next": [
