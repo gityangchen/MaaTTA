@@ -178,10 +178,25 @@ class Phase1LayoutTests(unittest.TestCase):
         )
         self.assertIn("unknown-image", checklist)
 
-    def test_no_placeholder_png_under_phase1(self):
+    def test_phase1_pngs_are_captured_crops_only(self):
         image_dir = ROOT / "assets" / "resource" / "image" / "phase1"
-        pngs = list(image_dir.rglob("*.png"))
-        self.assertEqual(pngs, [])
+        pngs = sorted(
+            path.relative_to(image_dir).as_posix()
+            for path in image_dir.rglob("*.png")
+        )
+        self.assertEqual(
+            pngs,
+            [
+                "home/anchor.png",
+                "mail/back.png",
+                "mail/entry.png",
+                "popup/generic_close.png",
+            ],
+        )
+        for rel in pngs:
+            data = (image_dir / rel).read_bytes()
+            self.assertTrue(data.startswith(b"\x89PNG\r\n\x1a\n"), rel)
+            self.assertGreater(len(data), 64, rel)
 
     def test_later_phases_have_comments_only(self):
         pipeline = ROOT / "assets" / "resource" / "pipeline"
